@@ -1,0 +1,5 @@
+skompilovat pomocou:
+    mpicc -o s1 sample1.c
+
+spusti pomocou:
+    mpirun -n 3 --use-hwthread-cpus ./s1
