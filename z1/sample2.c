@@ -2,10 +2,10 @@
  * Collective communication in a 4-process system. 
  */ 
 #include <mpi.h>
+#include <stdio.h>
 #define BUFSIZE 10
 
-int main(argc, argv)
-int argc; char *argv[];
+int main(int argc, char** argv)
 { int size, rank;
   int buf[BUFSIZE]={0,0,0,0,0,0,0,0,0,0};
   int n, value;
