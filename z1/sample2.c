@@ -44,9 +44,9 @@ if (rank==0) { /* Master */
     }   
   printf("\n Minimum %4d  by  master ",value); 
   MPI_Recv(&value, 1, MPI_INT, 1, 0, MPI_COMM_WORLD, &status);
-  printf("\n Sum     %4d from slave 1",value); 
+  printf("\n Maximum %4d from slave 1",value); 
   MPI_Recv(&value, 1, MPI_INT, 2, 0, MPI_COMM_WORLD, &status);
-  printf("\n Maximum %4d from slave 2",value); 
+  printf("\n Sum     %4d from slave 2",value); 
   MPI_Recv(&rval, 1, MPI_FLOAT, 3, 0, MPI_COMM_WORLD, &status);
   printf("\n Average %4.2f from slave 3\n",rval); 
  
