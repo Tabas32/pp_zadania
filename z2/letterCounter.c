@@ -8,6 +8,7 @@ void fillWithSpaces(int, char*);
 int countChar(char, int, char*);
 
 int main(int argc, char** argv) {
+// Inicializacia premennych ==========================================
 	int size, rank;
 
 	MPI_Status status;
@@ -15,27 +16,35 @@ int main(int argc, char** argv) {
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank); 
 
+// Kontrola poctu procesov ===========================================
 	if(size <= 1) {
 		perror("Not enought processes");
 		return 1;
 	}
 
-	if(rank == 0) {
+	if(rank == 0) { // Master ========================================
+		// Vstup hladaneho znaku
 		char search;
 		printf("Character to serach for:\n");
 		scanf("%c", &search);
 
+		// Vstup velkosti retazca
 		int inputLength;
 		printf("Input size:\n");
 		scanf("%d", &inputLength);
 		int chunkLength = (int)ceil((double)inputLength / (size - 1));
 
+		// Vstup retazca
 		inputLength = chunkLength * (size - 1);
 		char inputString[inputLength];
 		fillWithSpaces(inputLength, inputString);
 		printf("Input string:\n");
-		scanf("%s", inputString);
+		for(int i = 0; i < inputLength; i++) {
+			inputString[i] = getchar();
+		}
+		//scanf("%s", inputString);
 
+		// Rozdelenie retazca a odoslanie na ostatne procesy
 		for(int i = 1; i < size; i++) {
 			char buff[chunkLength];
 			memcpy(buff, &inputString[(i - 1) * chunkLength], chunkLength);
@@ -44,6 +53,7 @@ int main(int argc, char** argv) {
 			MPI_Send(buff, chunkLength, MPI_CHAR, i, 3, MPI_COMM_WORLD);
 		}
 
+		// Spracovanie vysledkov z ostatnych procesov
 		int count = 0;
 		for(int i = 1; i < size; i++) {
 			int tempCount;
@@ -53,7 +63,8 @@ int main(int argc, char** argv) {
 
 		printf("Char %c is in input string %d times\n", search, count);
 
-	} else {
+	} else { // Slaves ===============================================
+		// Vstupy
 		int strLength;	
 		MPI_Recv(&strLength, 1, MPI_INT, 0, 1, MPI_COMM_WORLD, &status);
 
@@ -63,6 +74,7 @@ int main(int argc, char** argv) {
 		char str[strLength];
 		MPI_Recv(str, strLength, MPI_CHAR, 0, 3, MPI_COMM_WORLD, &status);
 
+		// Vypocet a odoslanie na mastra
 		int count = countChar(c, strLength, str);	
 		MPI_Send(&count, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
 	}
@@ -71,12 +83,16 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
+// Pomocna f-cia na inicializaciu retazca
+// Naplni retazec str, velkosti size, znakom medzery
 void fillWithSpaces(int size, char* str) {
 	for (int i = 0; i < size; i++) {
 		str[i] = ' ';
 	}
 }
 
+
+// Vypocet vyskytu znaku c v retazci str o velkosit strLen
 int countChar(char c, int strLen, char* str) {
 	int counter = 0;
 	for(int i = 0; i < strLen; i++) {
